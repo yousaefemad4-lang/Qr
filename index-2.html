@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>استوديو QR</title>
+<meta name="description" content="صمّم QR كود بألوانك ولوجو وشكل مخصص، وحمّله PNG أو SVG، واكتب على ستيكر NFC.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%94%B3%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F7F6;--card:#fff;--ink:#12201F;--mute:#5B6B69;--line:#D5DEDC;--accent:#0F5C5A;--onaccent:#fff;--sig:#FFC93C;--err:#B3261E;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0C1514;--card:#142120;--ink:#EAF2F0;--mute:#9DB0AD;--line:#27403D;--accent:#4FD1C5;--onaccent:#06201E;--err:#FF8A80}}
+:root[data-theme="dark"]{--bg:#0C1514;--card:#142120;--ink:#EAF2F0;--mute:#9DB0AD;--line:#27403D;--accent:#4FD1C5;--onaccent:#06201E;--err:#FF8A80}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;font-size:17px;line-height:1.6}
+main{max-width:520px;margin:0 auto;padding:16px 16px 48px}
+h1{font-size:26px;font-weight:800;margin:4px 0 12px}
+h2{font-size:18px;margin:0 0 10px}
+.tabs{display:flex;border:2px solid var(--accent);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.tabs button{flex:1;padding:11px;font:inherit;font-weight:700;border:0;background:transparent;color:var(--accent);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--onaccent)}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+label{display:block;font-weight:700;margin:12px 0 6px}
+label:first-of-type{margin-top:0}
+input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input[type=color]{padding:2px;height:44px}
+textarea{min-height:80px;resize:vertical}
+.ltr{direction:ltr;text-align:left}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--sig);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 14px;border-radius:20px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-weight:700}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--onaccent)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.grid3 label{margin:0 0 4px;font-size:15px}
+.btn{padding:11px 14px;font-weight:800;border:0;border-radius:10px;background:var(--accent);color:var(--onaccent)}
+.btn.alt{background:transparent;color:var(--accent);border:2px solid var(--accent)}
+.btn.full{width:100%;margin-top:12px;padding:14px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.prev{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;text-align:center;box-shadow:0 6px 12px -8px rgba(0,0,0,.35)}
+.prev .box{min-height:120px;display:flex;align-items:center;justify-content:center}
+.prev img{max-height:28vh;max-width:100%;border-radius:8px;border:1px solid var(--line)}
+.prev .row{display:flex;gap:8px;margin-top:10px}
+.prev .row .btn{flex:1}
+.hint{color:var(--mute);font-size:15px;margin:8px 0 0}
+.msg{margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--line);word-break:break-word;white-space:pre-wrap}
+.msg.err{color:var(--err);border-color:var(--err)}.msg.ok{border-color:var(--accent)}
+.cust{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}.cust .nm{font-weight:800;font-size:18px;word-break:break-word}.cust .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.thumb{display:block;width:100%;max-width:200px;margin:10px auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>استوديو QR</h1>
+<div class="tabs" role="tablist"><button role="tab" id="t1" aria-selected="true">QR</button><button role="tab" id="t2" aria-selected="false">NFC</button></div>
+
+<div id="p1">
+  <section class="prev">
+    <div class="box" id="box"></div>
+    <div id="warn" class="hint" hidden></div>
+    <div class="row"><button class="btn" id="dpng" disabled>حمّل PNG</button><button class="btn alt" id="dsvg" disabled>حمّل SVG</button></div>
+    <div id="dmsg" class="hint" hidden></div>
+  </section>
+
+  <section><h2>1. المحتوى</h2>
+    <div class="chips" id="types"></div>
+    <div id="fields" style="margin-top:14px"></div>
+  </section>
+
+  <section><h2>2. التصميم</h2>
+    <div class="grid3">
+      <div><label for="cfg">لون النقاط</label><input type="color" id="cfg" value="#0F5C5A"></div>
+      <div><label for="cey">لون العيون</label><input type="color" id="cey" value="#12201F"></div>
+      <div><label for="cbg">الخلفية</label><input type="color" id="cbg" value="#FFFFFF"></div>
+    </div>
+    <label>شكل النقاط</label><div class="chips" id="dots"></div>
+    <label>شكل العيون</label><div class="chips" id="eyes"></div>
+    <label for="lab">كتابة تحت الكود (اختياري)</label>
+    <input id="lab" maxlength="30" placeholder="امسح هنا">
+    <label for="logo">لوجو في النص (اختياري)</label>
+    <input type="file" id="logo" accept="image/*">
+    <button class="btn alt full" id="nologo" hidden>شيل اللوجو</button>
+  </section>
+</div>
+
+<div id="p2" hidden>
+  <section>
+    <div id="nsup" class="msg err" hidden>كتابة NFC بتشتغل على أندرويد في Chrome بس. على آيفون محتاج تطبيق مخصص.</div>
+    <label for="ntype">النوع</label>
+    <select id="ntype"><option value="url">رابط</option><option value="text">نص</option></select>
+    <label for="nin">المحتوى</label>
+    <textarea id="nin" class="ltr" placeholder="https://example.com"></textarea>
+    <button class="btn full" id="nwrite">اكتب على الستيكر</button>
+    <button class="btn alt full" id="nread">اقرأ ستيكر</button>
+    <p class="hint">بعد الضغط قرّب ظهر الموبايل من الستيكر.</p>
+    <div id="nmsg" class="msg" hidden></div>
+  </section>
+</div>
+<p class="hint" style="text-align:center">الكود بيتعمل على جهازك ومفيش حاجة بتتحفظ أو بتتبعت لأي مكان.</p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+qrcode.stringToBytes=function(s){return Array.from(new TextEncoder().encode(s))};
+var dl=null;
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]})};
+var wesc=function(s){return String(s).replace(/([\\;,:"])/g,'\\$1')};
+
+/* ---------- content types ---------- */
+var TYPES={
+ url:{n:'رابط',f:[{k:'u',l:'الرابط',p:'https://example.com',ltr:1}],b:function(v){var u=(v.u||'').trim();return u&&!/^[a-z]+:/i.test(u)?'https://'+u:u}},
+ text:{n:'نص',f:[{k:'t',l:'النص',area:1}],b:function(v){return v.t||''}},
+ wifi:{n:'واي فاي',f:[{k:'s',l:'اسم الشبكة'},{k:'p',l:'كلمة السر'},{k:'e',l:'التشفير',opts:[['WPA','WPA/WPA2'],['WEP','WEP'],['nopass','بدون']]}],
+  b:function(v){return v.s?'WIFI:T:'+(v.e||'WPA')+';S:'+wesc(v.s)+';'+(v.e==='nopass'?'':'P:'+wesc(v.p||'')+';')+';':''}},
+ wa:{n:'واتساب',f:[{k:'ph',l:'الرقم بكود الدولة',p:'201001234567',ltr:1},{k:'m',l:'رسالة جاهزة (اختياري)'}],
+  b:function(v){var d=(v.ph||'').replace(/\D/g,'');return d?'https://wa.me/'+d+(v.m?'?text='+encodeURIComponent(v.m):''):''}},
+ tel:{n:'اتصال',f:[{k:'ph',l:'رقم التليفون',p:'+201001234567',ltr:1}],b:function(v){return v.ph?'tel:'+v.ph.replace(/\s/g,''):''}},
+ mail:{n:'إيميل',f:[{k:'a',l:'الإيميل',ltr:1},{k:'s',l:'العنوان (اختياري)'},{k:'m',l:'الرسالة (اختياري)',area:1}],
+  b:function(v){return v.a?'mailto:'+v.a.trim()+'?subject='+encodeURIComponent(v.s||'')+'&body='+encodeURIComponent(v.m||''):''}},
+ vcard:{n:'جهة اتصال',f:[{k:'n',l:'الاسم'},{k:'o',l:'الشركة'},{k:'ph',l:'التليفون',ltr:1},{k:'a',l:'الإيميل',ltr:1},{k:'w',l:'الموقع',ltr:1}],
+  b:function(v){if(!v.n)return '';return ['BEGIN:VCARD','VERSION:3.0','N:'+v.n+';;;;','FN:'+v.n].concat(v.o?['ORG:'+v.o]:[],v.ph?['TEL:'+v.ph]:[],v.a?['EMAIL:'+v.a]:[],v.w?['URL:'+v.w]:[],['END:VCARD']).join('\n')}}
+};
+var st={type:'url',v:{},dots:'rounded',eyes:'rounded',logo:''};
+
+function chips(el,opts,cur,cb){
+  el.textContent='';
+  opts.forEach(function(o){
+    var b=document.createElement('button');b.className='chip';b.textContent=o[1];
+    b.setAttribute('aria-pressed',o[0]===cur());
+    b.onclick=function(){cb(o[0]);chips(el,opts,cur,cb);draw()};
+    el.appendChild(b);
+  });
+}
+function fields(){
+  var f=$('fields');f.textContent='';
+  TYPES[st.type].f.forEach(function(d,i){
+    var id='f_'+d.k,lab=document.createElement('label');lab.htmlFor=id;lab.textContent=d.l;
+    var inp;
+    if(d.opts){inp=document.createElement('select');d.opts.forEach(function(o){var op=document.createElement('option');op.value=o[0];op.textContent=o[1];inp.appendChild(op)})}
+    else if(d.area){inp=document.createElement('textarea')}
+    else{inp=document.createElement('input')}
+    inp.id=id;if(d.p)inp.placeholder=d.p;if(d.ltr)inp.className='ltr';
+    inp.value=st.v[d.k]||'';
+    inp.oninput=inp.onchange=function(){st.v[d.k]=inp.value;draw()};
+    f.appendChild(lab);f.appendChild(inp);
+  });
+}
+chips($('types'),Object.keys(TYPES).map(function(k){return[k,TYPES[k].n]}),function(){return st.type},function(k){st.type=k;st.v={};fields()});
+chips($('dots'),[['square','مربع'],['rounded','مدور'],['dot','نقاط']],function(){return st.dots},function(k){st.dots=k});
+chips($('eyes'),[['square','مربع'],['rounded','مدور'],['circle','دائري']],function(){return st.eyes},function(k){st.eyes=k});
+['cfg','cey','cbg','lab'].forEach(function(i){$(i).oninput=draw});
+
+/* ---------- logo ---------- */
+$('logo').onchange=function(){
+  var f=this.files&&this.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var s=256,c=document.createElement('canvas'),k=Math.min(s/im.width,s/im.height,1);
+      c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      st.logo=c.toDataURL('image/png');$('nologo').hidden=false;draw();
+    };
+    im.src=r.result;
+  };
+  r.readAsDataURL(f);
+};
+$('nologo').onclick=function(){st.logo='';$('logo').value='';this.hidden=true;draw()};
+
+/* ---------- svg builder ---------- */
+function rr(x,y,w,h,r){
+  return 'M'+(x+r)+' '+y+'h'+(w-2*r)+'a'+r+' '+r+' 0 0 1 '+r+' '+r+'v'+(h-2*r)+'a'+r+' '+r+' 0 0 1 -'+r+' '+r+'h-'+(w-2*r)+'a'+r+' '+r+' 0 0 1 -'+r+' -'+r+'v-'+(h-2*r)+'a'+r+' '+r+' 0 0 1 '+r+' -'+r+'z';
+}
+function lum(h){var c=[1,3,5].map(function(i){var v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]}
+function ratio(a,b){var x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+
+function build(data,st){
+  var q=qrcode(0,st.logo?'H':'M');q.addData(data);q.make();
+  var n=q.getModuleCount(),c=10,m=4,W=(n+2*m)*c,label=(st.label||'').trim(),extra=label?6*c:0,H=W+extra;
+  var fg=st.fg,ey=st.ey,bg=st.bg;
+  var ls=st.logo?Math.floor(n*.22):0,s0=Math.floor((n-ls)/2);
+  var inFinder=function(r,k){return(r<7&&k<7)||(r<7&&k>=n-7)||(r>=n-7&&k<7)};
+  var inLogo=function(r,k){return ls&&r>=s0&&r<s0+ls&&k>=s0&&k<s0+ls};
+  var d='';
+  for(var r=0;r<n;r++)for(var k=0;k<n;k++){
+    if(!q.isDark(r,k)||inFinder(r,k)||inLogo(r,k))continue;
+    var x=(k+m)*c,y=(r+m)*c;
+    d+=st.dots==='square'?'M'+x+' '+y+'h'+c+'v'+c+'h-'+c+'z':st.dots==='rounded'?rr(x,y,c,c,c*.32):rr(x+c*.08,y+c*.08,c*.84,c*.84,c*.42);
+  }
+  var R={square:[0,0,0],rounded:[1.9,1.2,1],circle:[3.5,2.5,1.5]}[st.eyes].map(function(v){return v*c});
+  var e='';
+  [[0,0],[n-7,0],[0,n-7]].forEach(function(p){
+    var x=(p[1]+m)*c,y=(p[0]+m)*c;
+    e+=rr(x,y,7*c,7*c,R[0])+rr(x+c,y+c,5*c,5*c,R[1]);
+    e+=rr(x+2*c,y+2*c,3*c,3*c,R[2]);
+  });
+  var out='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+
+   '<rect width="'+W+'" height="'+H+'" fill="'+bg+'"/>'+
+   '<path d="'+d+'" fill="'+fg+'"/>'+
+   '<path d="'+e+'" fill="'+ey+'" fill-rule="evenodd"/>';
+  if(ls){
+    var lx=(s0+m)*c,lw=ls*c;
+    out+='<rect x="'+lx+'" y="'+lx+'" width="'+lw+'" height="'+lw+'" fill="'+bg+'"/>'+
+         '<image x="'+(lx+c*.5)+'" y="'+(lx+c*.5)+'" width="'+(lw-c)+'" height="'+(lw-c)+'" preserveAspectRatio="xMidYMid meet" href="'+st.logo+'"/>';
+  }
+  if(label)out+='<text x="'+W/2+'" y="'+(W+extra/2-c*.4)+'" text-anchor="middle" dominant-baseline="middle" font-size="'+c*2.8+'" font-weight="700" font-family="Tajawal,Arial,sans-serif" fill="'+fg+'">'+esc(label)+'</text>';
+  return{svg:out+'</svg>',W:W,H:H,low:ratio(fg,bg)<3||ratio(ey,bg)<3};
+}
+
+var cur=null;
+function draw(){
+  var data=TYPES[st.type].b(st.v),box=$('box'),w=$('warn');
+  box.textContent='';$('dpng').disabled=$('dsvg').disabled=true;cur=null;w.hidden=true;
+  if(!data){var p=document.createElement('p');p.className='hint';p.textContent='اكتب المحتوى وهيظهر الكود هنا.';box.appendChild(p);return}
+  try{cur=build(data,curOpts())}catch(e){var p2=document.createElement('p');p2.className='hint';p2.textContent='المحتوى طويل أوي على QR. اختصره أو شيل اللوجو.';box.appendChild(p2);return}
+  var img=document.createElement('img');img.alt='QR';img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(cur.svg);box.appendChild(img);
+  $('dpng').disabled=$('dsvg').disabled=false;
+  if(cur.low){w.hidden=false;w.textContent='تنبيه: التباين قليل بين اللونين، والكود ممكن ما يتقراش. استخدم نقاط غامقة على خلفية فاتحة.'}
+}
+
+/* ---------- export ---------- */
+function dmsg(t){var m=$('dmsg');m.hidden=!t;m.textContent=t||''}
+function save(name,blob){
+  var u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(u)},4000);dmsg('');
+}
+$('dsvg').onclick=function(){if(cur)save('qr-code.svg',new Blob([cur.svg],{type:'image/svg+xml'}))};
+$('dpng').onclick=function(){
+  if(!cur)return;
+  var im=new Image(),W=1200,H=Math.round(1200*cur.H/cur.W);
+  im.onload=function(){
+    var c=document.createElement('canvas');c.width=W;c.height=H;
+    c.getContext('2d').drawImage(im,0,0,W,H);
+    c.toBlob(function(b){if(b)save('qr-code.png',b);else dmsg('مقدرتش أجهّز الصورة.')},'image/png');
+  };
+  im.onerror=function(){dmsg('مقدرتش أجهّز الصورة.')};
+  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(cur.svg);
+};
+
+/* ---------- tabs + NFC ---------- */
+function tab(n){$('p1').hidden=n!==1;$('p2').hidden=n!==2;$('t1').setAttribute('aria-selected',n===1);$('t2').setAttribute('aria-selected',n===2)}
+$('t1').onclick=function(){tab(1)};$('t2').onclick=function(){tab(2)};
+var sup='NDEFReader' in window;if(!sup)$('nsup').hidden=false;
+function nsay(t,c){var m=$('nmsg');m.hidden=false;m.textContent=t;m.className='msg'+(c?' '+c:'')}
+$('ntype').onchange=function(){$('nin').placeholder=this.value==='url'?'https://example.com':'اكتب النص هنا'};
+$('nwrite').onclick=async function(){
+  var v=$('nin').value.trim(),t=$('ntype').value;
+  if(!sup)return nsay('المتصفح ده مش بيدعم كتابة NFC.','err');
+  if(!v)return nsay('اكتب المحتوى الأول.','err');
+  if(t==='url'&&!/^https?:\/\//i.test(v))return nsay('الرابط لازم يبدأ بـ http:// أو https://','err');
+  nsay('قرّب الستيكر من ظهر الموبايل...');
+  try{await new NDEFReader().write({records:[{recordType:t,data:v}]});nsay('تمت الكتابة بنجاح.','ok')}
+  catch(e){nsay(e&&e.name==='NotAllowedError'?'الإذن مرفوض. فعّل NFC ووافق على الإذن، أو افتح الصفحة في Chrome مباشرة.':'فشلت الكتابة. قرّب الستيكر تاني.','err')}
+};
+$('nread').onclick=async function(){
+  if(!sup)return nsay('المتصفح ده مش بيدعم قراءة NFC.','err');
+  nsay('قرّب الستيكر من ظهر الموبايل...');
+  try{
+    var r=new NDEFReader();await r.scan();
+    r.onreading=function(e){
+      var o=[];e.message.records.forEach(function(x){try{o.push(new TextDecoder(x.encoding||'utf-8').decode(x.data))}catch(z){}});
+      nsay(o.length?o.join('\n'):'الستيكر فاضي أو نوعه غير مدعوم.','ok');
+    };
+    r.onreadingerror=function(){nsay('مقدرتش أقرأ الستيكر.','err')};
+  }catch(e){nsay('مقدرتش أبدأ القراءة. تأكد إن NFC شغال.','err')}
+};
+
+function curOpts(){return{dots:st.dots,eyes:st.eyes,logo:st.logo,label:$('lab').value,fg:$('cfg').value,ey:$('cey').value,bg:$('cbg').value}}
+fields();draw();
+})();
+</script>
+</body>
+</html>
